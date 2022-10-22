@@ -1,5 +1,5 @@
 import {useState} from 'react';
-import styles from './priority-table.module.css';
+import s from './priority-table.module.css';
 
 type RowId = string;
 interface Row {
@@ -11,7 +11,9 @@ interface Priority {
     id: PriorityId;
     name: string;
 }
+type RpId = string;
 interface Priority_Row {
+    id: RpId;
     rowId: RowId;
     priorityId: PriorityId;
     rank: number;
@@ -26,29 +28,42 @@ const rows: Row[] = [
     {id: 'r2', label: 'Small bug'},
 ]
 const rows_priorities: Priority_Row[] = [
-    {priorityId: 'p1', rowId: 'r1', rank: 0},
-    {priorityId: 'p1', rowId: 'r2', rank: 1},
-    {priorityId: 'p2', rowId: 'r1', rank: 1},
-    {priorityId: 'p2', rowId: 'r2', rank: 0},
+    {id: 'rp1', priorityId: 'p1', rowId: 'r1', rank: 0},
+    {id: 'rp2', priorityId: 'p1', rowId: 'r2', rank: 1},
+    {id: 'rp3', priorityId: 'p2', rowId: 'r1', rank: 1},
+    {id: 'rp4', priorityId: 'p2', rowId: 'r2', rank: 0},
 ]
 
-const currentPriorityId: PriorityId = 'p1';
+
 
 function PriorityTable() {
-    const columns = ['X', 'N', 'Label'].concat(priorities.map(p => p.name));
-    const currentPriorityName = priorities.find(p => currentPriorityId === p.id);
+    const [currentPriorityId, setCurrentPriorityId] = useState<PriorityId>('p1');
+
+    const priorityThs = priorities.map(p => <th className={p.id === currentPriorityId ? s.currentPriorityTh : ''}>
+        {p.name}
+        <button type="button" className={s.selectPriorityButton} onClick={() => setCurrentPriorityId(p.id)}>*</button>
+    </th>);
+
+    const sortedRows = rows_priorities.filter(rp => rp.priorityId === currentPriorityId)
+        .sort((rp1, rp2) => rp1.rank - rp2.rank)
+        .map(rp => {
+            const row = rows.find(r => r.id === rp.rowId)
+            if (row) return row;
+            else throw Error('Cannot find row ' + rp.rowId + ', rpId '+rp.id )
+        });
 
     return <table>
         <thead>
-            {columns.map(c => (
-                <th>{c}</th>
-            ))}
+            <th>X</th>
+            <th>N</th>
+            <th>Label</th>
+            {priorityThs}
         </thead>
         <tbody>
-            {rows.map((row, i) => {
-                const X = <td className={styles.dragHandle}>
-                    <button type="button" className={styles.buttonUp}>+</button>
-                    <button type="button" className={styles.buttonDown}>-</button>
+            {sortedRows.map((row, i) => {
+                const X = <td className={s.dragHandle}>
+                    <button type="button" className={s.buttonUp}>+</button>
+                    <button type="button" className={s.buttonDown}>-</button>
                 </td>
                 const N = <td>{i+1}</td>;
                 const label = <td>{row.label}</td>

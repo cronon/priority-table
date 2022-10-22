@@ -2,3 +2,9 @@
     font-weight: bold;
     cursor: default;
 }
+
+.currentPriorityTh {
+    font-weight: bold;
+    text-decoration: underline;
+    outline: 2px dashed skyblue;
+}
