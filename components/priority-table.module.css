@@ -4,7 +4,15 @@
 }
 
 .currentPriorityTh {
-    font-weight: bold;
-    text-decoration: underline;
     outline: 2px dashed skyblue;
+}
+.currentPriorityTh .selectPriorityButton {
+    text-decoration: underline;
+}
+.table {
+    border-collapse: collapse;
+}
+.table tbody tr:hover {
+    background-color: darksalmon;
+    border-color: darksalmon;
 }

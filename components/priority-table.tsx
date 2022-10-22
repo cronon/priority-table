@@ -42,11 +42,6 @@ function PriorityTable() {
     const [rows_priorities, setRows_priorities] = useState<Row_Priority[]>(initial_rows_priorities);
     const [currentPriorityId, setCurrentPriorityId] = useState<PriorityId>('p1');
 
-    const priorityThs = priorities.map(p => <th key={p.id} className={p.id === currentPriorityId ? s.currentPriorityTh : ''}>
-        {p.name}
-        <button type="button" className={s.selectPriorityButton} onClick={() => setCurrentPriorityId(p.id)}>*</button>
-    </th>);
-
     const sortedRows = rows_priorities.filter(rp => rp.priorityId === currentPriorityId)
         .sort((rp1, rp2) => rp1.rank - rp2.rank)
         .map(rp => {
@@ -117,14 +112,18 @@ function PriorityTable() {
         e.target.value = '';
         addPriority(newColumn);
     }
-    return <table>
+
+    const priorityThs = priorities.map(p => <th key={p.id} className={p.id === currentPriorityId ? s.currentPriorityTh : ''}>
+        <button type="button" className={s.selectPriorityButton} onClick={() => setCurrentPriorityId(p.id)}>{p.name}</button>
+    </th>);
+    return <table className={s.table}>
         <thead>
             <tr>
-                <th key="draghandle">X</th>
-                <th key="N">N</th>
+                <th key="draghandle">Ж</th>
+                <th key="N">№</th>
                 <th key="label">Label</th>
                 {priorityThs}
-                <th><input type="text" onBlur={newColumnInputChange}/></th>
+                <th><input type="text" onBlur={newColumnInputChange} placeholder="New column"/></th>
             </tr>
         </thead>
         <tbody>
@@ -151,7 +150,7 @@ function PriorityTable() {
             })}
         <tr key="input-tr">
             <td colSpan={3}>
-            <input type="text" onBlur={e => inputChange(e as any)}/>
+            <input type="text" onBlur={e => inputChange(e as any)} placeholder="New row"/>
             <button type="button" onClick={e => addRowClick(e)}>+</button>
             </td>
         </tr>
