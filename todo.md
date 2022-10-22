@@ -9,12 +9,13 @@ Then I'll copy that to Excel, and add some absolute weight to those numbers, i.e
 
 Features left:
     add many rows with Ctrl+V inserting a text with \n's
-    add a new column
+    highlight recently moved row
+    highlight row on hover
     drag-n-drop
-    add a row
 
 Tech debt
     check performance on 100 of rows. If it is bad, switch to immutables and query
     e2e tests
     extract UI Row component, and table header component
+    move model out
 

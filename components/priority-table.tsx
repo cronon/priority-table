@@ -18,7 +18,7 @@ interface Row_Priority {
     priorityId: PriorityId;
     rank: number;
 }
-const priorities: Priority[] = [
+const initialPriorities: Priority[] = [
     {id: 'p1', name: 'Impact'},
     {id: 'p2', name: 'Difficulty'}
 ]
@@ -37,6 +37,7 @@ const initial_rows_priorities: Row_Priority[] = [
 
 
 function PriorityTable() {
+    const [priorities, setPriorities] = useState<Priority[]>(initialPriorities);
     const [rows, setRows] = useState<Row[]>(initialRows);
     const [rows_priorities, setRows_priorities] = useState<Row_Priority[]>(initial_rows_priorities);
     const [currentPriorityId, setCurrentPriorityId] = useState<PriorityId>('p1');
@@ -91,6 +92,18 @@ function PriorityTable() {
         setRows(rows.concat(newRow));
         setRows_priorities(rows_priorities.concat(newRPs))
     }
+    const addPriority = (name: string) => {
+        const newPriorityId = 'p' + Date.now();
+        const newPriority: Priority = {
+            id: newPriorityId, name
+        }
+        const newRPs: Row_Priority[] = rows.map((r, i) => {
+            const lastRank = rows.length;
+            return {id: 'rp'+r.id+newPriorityId, rowId: r.id, priorityId: newPriorityId, rank: i}
+        });
+        setPriorities(priorities.concat(newPriority));
+        setRows_priorities(rows_priorities.concat(newRPs));
+    }
     const inputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const newRowLabel = e.target.value;
         e.target.value = '';
@@ -99,6 +112,11 @@ function PriorityTable() {
     const addRowClick = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         // document
     }
+    const newColumnInputChange = (e: React.FocusEvent<HTMLInputElement, Element>) => {
+        const newColumn = e.target.value;
+        e.target.value = '';
+        addPriority(newColumn);
+    }
     return <table>
         <thead>
             <tr>
@@ -106,6 +124,7 @@ function PriorityTable() {
                 <th key="N">N</th>
                 <th key="label">Label</th>
                 {priorityThs}
+                <th><input type="text" onBlur={newColumnInputChange}/></th>
             </tr>
         </thead>
         <tbody>
