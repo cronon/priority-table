@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import React, {useState} from 'react';
 import s from './priority-table.module.css';
 
 type RowId = string;
@@ -23,7 +23,7 @@ const priorities: Priority[] = [
     {id: 'p2', name: 'Difficulty'}
 ]
 
-const rows: Row[] = [
+const initialRows: Row[] = [
     {id: 'r1', label: 'Big bug'},
     {id: 'r2', label: 'Small bug'},
 ]
@@ -37,6 +37,7 @@ const initial_rows_priorities: Row_Priority[] = [
 
 
 function PriorityTable() {
+    const [rows, setRows] = useState<Row[]>(initialRows);
     const [rows_priorities, setRows_priorities] = useState<Row_Priority[]>(initial_rows_priorities);
     const [currentPriorityId, setCurrentPriorityId] = useState<PriorityId>('p1');
 
@@ -79,6 +80,25 @@ function PriorityTable() {
             updateOrder(rowId, delta);
         }
     }
+    const addRow = (newLabel: string) => {
+        const newRowId = 'r'+Date.now();
+        const newRow: Row = {id: newRowId, label: newLabel};
+
+        const newRPs: Row_Priority[] = priorities.map(p => {
+            const lastRank = rows.length;
+            return {id: 'rp'+newRowId+p.id, rowId: newRowId, priorityId: p.id, rank: lastRank}
+        });
+        setRows(rows.concat(newRow));
+        setRows_priorities(rows_priorities.concat(newRPs))
+    }
+    const inputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newRowLabel = e.target.value;
+        e.target.value = '';
+        addRow(newRowLabel);
+    }
+    const addRowClick = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+        // document
+    }
     return <table>
         <thead>
             <tr>
@@ -102,7 +122,7 @@ function PriorityTable() {
                     if (rank) return rank;
                     else throw Error(`Cant find an row_priority for rowId=${row.id} and priorityId=${p.id} `)
                 })
-                const ranksTds = ranks.map(r => <td key={r.id}>{r.rank}</td>);
+                const ranksTds = ranks.map(rp => <td key={rp.id}>{rp.rank}</td>);
                 return <tr key={row.id}>
                     {X}
                     {N}
@@ -110,10 +130,14 @@ function PriorityTable() {
                     {ranksTds}
                 </tr>
             })}
-           <tr>
-            </tr>
+        <tr key="input-tr">
+            <td colSpan={3}>
+            <input type="text" onBlur={e => inputChange(e as any)}/>
+            <button type="button" onClick={e => addRowClick(e)}>+</button>
+            </td>
+        </tr>
         </tbody>
-        
+
     </table>
 
 }
