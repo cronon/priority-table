@@ -8,9 +8,7 @@ So, I'll sort them out according to the difficulty, and then I select another co
 Then I'll copy that to Excel, and add some absolute weight to those numbers, i.e. instead of two bugs with Difficulty {1, 2} it'll be {1, 100} if the second one is significantly more difficult. Then again in excel I may use a formula to calculate the final priority.
 
 Features left:
-    add many rows with Ctrl+V inserting a text with \n's
     highlight recently moved row
-    highlight row on hover
     drag-n-drop
 
 Tech debt

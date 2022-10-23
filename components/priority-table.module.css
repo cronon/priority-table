@@ -12,7 +12,10 @@
 .table {
     border-collapse: collapse;
 }
+.table td {
+    cursor: default;
+}
 .table tbody tr:hover {
-    background-color: darksalmon;
+    background-color: rgb(255, 208, 193);
     border-color: darksalmon;
 }
