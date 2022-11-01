@@ -40,6 +40,8 @@ function PriorityTable() {
     const currentPriority = priorities.find(p => p.id === currentPriorityId);
     if (!currentPriority) throw new Error(`Cant find current priority id=${currentPriorityId}`);
 
+    const [lastMoved, setLastMoved] = useState<RowId>(rows[0].id);
+
     const sortedRows =  currentPriority.rowIds
         .map(rowId => {
             const row = rows.find(r => r.id === rowId)
@@ -53,6 +55,7 @@ function PriorityTable() {
         else if (index === rows.length-1 && delta === "Down") {}
         else {
             updateOrder(rowId, currentPriorityId, delta);
+            setLastMoved(rowId);
         }
     }
 
@@ -105,7 +108,8 @@ function PriorityTable() {
                 >
                 {sortedRows.map((row, i) => {
                    const ranks = getRanks(row.id, priorities);
-                   return <RowView index={i} key={row.id} row={row} ranks={ranks} onUpdateOrderClick={delta => updateOrderClick(i, row.id, delta)} />
+                   const isLastMoved = lastMoved === row.id;
+                   return <RowView index={i} key={row.id} isLastMoved={isLastMoved} row={row} ranks={ranks} onUpdateOrderClick={delta => updateOrderClick(i, row.id, delta)} />
                 })}
             
                 </SortableContext>
@@ -126,9 +130,10 @@ interface RowViewProps {
     row: Row,
     index: number,
     ranks: {priorityId: PriorityId, rank: number}[],
-    onUpdateOrderClick: (delta: "Up"|"Down") => void
+    onUpdateOrderClick: (delta: "Up"|"Down") => void,
+    isLastMoved: boolean;
 }
-function RowView({row, index, ranks, onUpdateOrderClick}: RowViewProps): JSX.Element {
+function RowView({row, index, ranks, isLastMoved, onUpdateOrderClick}: RowViewProps): JSX.Element {
     const X = <td key="draghandle" className={s.dragHandle}>
             <button type="button" className={s.buttonUp} onClick={() => onUpdateOrderClick("Up")}>+</button>
             <button type="button" className={s.buttonDown} onClick={() => onUpdateOrderClick("Down")}>-</button>
@@ -137,8 +142,8 @@ function RowView({row, index, ranks, onUpdateOrderClick}: RowViewProps): JSX.Ele
     const label = <td key="label">{row.label}</td>
 
     const ranksTds = ranks.map(r => <td key={r.priorityId}>{r.rank}</td>);
-
-    return <tr key={row.id}>
+    const trClass = isLastMoved ? s.lastMovedTr  : '';
+    return <tr key={row.id} className={trClass}>
         {X}
         {N}
         {label}

@@ -8,10 +8,12 @@ So, I'll sort them out according to the difficulty, and then I select another co
 Then I'll copy that to Excel, and add some absolute weight to those numbers, i.e. instead of two bugs with Difficulty {1, 2} it'll be {1, 100} if the second one is significantly more difficult. Then again in excel I may use a formula to calculate the final priority.
 
 Features left:
-    highlight recently moved row
     drag-n-drop
 
 Tech debt
     check performance on 100 of rows. If it is bad, switch to immutables and query
     e2e or unit tests
 
+
+features done:
+    highlight recently moved row
