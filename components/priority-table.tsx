@@ -1,37 +1,35 @@
 import React, {useRef, useState} from 'react';
 import s from './priority-table.module.css';
+import {
+    DndContext, 
+    closestCenter,
+    KeyboardSensor,
+    PointerSensor,
+    useSensor,
+    useSensors,
+  } from '@dnd-kit/core';
+  import {
+    arrayMove,
+    SortableContext,
+    sortableKeyboardCoordinates,
+    verticalListSortingStrategy,
+  } from '@dnd-kit/sortable';
+  import {useSortable} from '@dnd-kit/sortable';
 
-const getId = (() => {
-    let i = 0;
-    return () => {i+=1; return i}
-})();
-
-type RowId = string;
-interface Row {
-    label: string;
-    id: RowId;
-}
-type PriorityId = string;
-interface Priority {
-    id: PriorityId;
-    name: string;
-    rowIds: RowId[];
-}
-
-const initialRows: Row[] = [
-    {id: 'r'+getId(), label: 'Big bug'},
-    {id: 'r'+getId(), label: 'Small bug'},
-]
-const initialPriorities: Priority[] = [
-    {id: 'p'+getId(), name: 'Impact', rowIds: [initialRows[0].id, initialRows[1].id]},
-    {id: 'p'+getId(), name: 'Difficulty', rowIds: [initialRows[1].id, initialRows[0].id]}
-]
+import {useTable, PriorityId, RowId} from './useTable';
 
 function PriorityTable() {
-    const [priorities, setPriorities] = useState<Priority[]>(initialPriorities);
-    const [rows, setRows] = useState<Row[]>(initialRows);
+    const sensors = useSensors(
+        useSensor(PointerSensor),
+        useSensor(KeyboardSensor, {
+          coordinateGetter: sortableKeyboardCoordinates,
+        })
+    );
+
+    const {rows, priorities, addPriority, addRow, updateOrder} = useTable();
+
     // const [rows_priorities, setRows_priorities] = useState<Row_Priority[]>(initial_rows_priorities);
-    const [currentPriorityId, setCurrentPriorityId] = useState<PriorityId>(initialPriorities[0].id);
+    const [currentPriorityId, setCurrentPriorityId] = useState<PriorityId>(priorities[0].id);
     const currentPriority = priorities.find(p => p.id === currentPriorityId);
     if (!currentPriority) throw new Error(`Cant find current priority id=${currentPriorityId}`);
 
@@ -42,42 +40,13 @@ function PriorityTable() {
             else throw Error('Cannot find row ' + rowId)
         });
     
-    const updateOrder = function(rowId: RowId, delta: "Up" | "Down") {
-        const rowIndex = currentPriority.rowIds.findIndex(id => id === rowId);
-        if (rowIndex === -1) throw Error(`Can't find a row rowId=${rowId}`)
-
-        const newIndex = delta === 'Up' ? rowIndex - 1 : rowIndex + 1;
-        
-        currentPriority.rowIds.splice(rowIndex, 1);
-        currentPriority.rowIds.splice(newIndex, 0, rowId);
-
-        setPriorities(p => [...p]) // mutation
-    }
 
     const updateOrderClick = function (index: number, rowId: RowId, delta: "Up" | "Down") {
         if (index === 0 && delta === "Up") {}
         else if (index === rows.length-1 && delta === "Down") {}
         else {
-            updateOrder(rowId, delta);
+            updateOrder(rowId, currentPriorityId, delta);
         }
-    }
-    const addRow = (newLabel: string) => {
-        const newRowId = 'r'+getId();
-        const newRow: Row = {id: newRowId, label: newLabel};
-
-        setRows(rows => rows.concat(newRow));
-        setPriorities(priorities => priorities.map(p => ({
-            ...p,
-            rowIds: p.rowIds.concat(newRowId)
-        })))
-    }
-    const addPriority = (name: string) => {
-        const newPriorityId = 'p' + getId();
-        const newPriority: Priority = {
-            id: newPriorityId, name,
-            rowIds: rows.map(r => r.id)
-        }
-        setPriorities(priorities => priorities.concat(newPriority));
     }
 
     const newRowInputRef = useRef<HTMLInputElement>(null)
@@ -105,6 +74,9 @@ function PriorityTable() {
     const priorityThs = priorities.map(p => <th key={p.id} className={p.id === currentPriorityId ? s.currentPriorityTh : ''}>
         <button type="button" className={s.selectPriorityButton} onClick={() => setCurrentPriorityId(p.id)}>{p.name}</button>
     </th>);
+
+
+
     return <table className={s.table}>
         <thead>
             <tr>
@@ -116,6 +88,15 @@ function PriorityTable() {
             </tr>
         </thead>
         <tbody>
+            <DndContext 
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={(event) => console.log('onDragEnd', event)}
+                >
+                <SortableContext 
+                    items={sortedRows}
+                    strategy={verticalListSortingStrategy}
+                >
             {sortedRows.map((row, i) => {
                 const X = <td key="draghandle" className={s.dragHandle}>
                     <button type="button" className={s.buttonUp} onClick={() => updateOrderClick(i, row.id, "Up")}>+</button>
@@ -136,6 +117,8 @@ function PriorityTable() {
                     {ranksTds}
                 </tr>
             })}
+                    </SortableContext>
+            </DndContext>
         <tr key="input-tr">
             <td colSpan={3}>
             <input type="text" placeholder="New row" ref={newRowInputRef} onPaste={e => newRowPaste(e)}/>
