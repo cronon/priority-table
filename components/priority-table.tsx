@@ -16,7 +16,15 @@ import {
   } from '@dnd-kit/sortable';
   import {useSortable} from '@dnd-kit/sortable';
 
-import {useTable, PriorityId, RowId} from './useTable';
+import {useTable, PriorityId, RowId, Row, Priority} from './useTable';
+
+function getRanks(rowId: RowId, priorities: Priority[]): {priorityId: PriorityId, rank: number}[] {
+    return priorities.map(p => {
+        const rank = p.rowIds.findIndex(id => id === rowId);
+        if (rank !== -1) return {priorityId: p.id, rank};
+        else throw Error(`Cant find a rowId=${rowId} within priority.rowIds priorityId=${p.id} `)
+    });
+}
 
 function PriorityTable() {
     const sensors = useSensors(
@@ -28,7 +36,6 @@ function PriorityTable() {
 
     const {rows, priorities, addPriority, addRow, updateOrder} = useTable();
 
-    // const [rows_priorities, setRows_priorities] = useState<Row_Priority[]>(initial_rows_priorities);
     const [currentPriorityId, setCurrentPriorityId] = useState<PriorityId>(priorities[0].id);
     const currentPriority = priorities.find(p => p.id === currentPriorityId);
     if (!currentPriority) throw new Error(`Cant find current priority id=${currentPriorityId}`);
@@ -97,38 +104,47 @@ function PriorityTable() {
                     items={sortedRows}
                     strategy={verticalListSortingStrategy}
                 >
-            {sortedRows.map((row, i) => {
-                const X = <td key="draghandle" className={s.dragHandle}>
-                    <button type="button" className={s.buttonUp} onClick={() => updateOrderClick(i, row.id, "Up")}>+</button>
-                    <button type="button" className={s.buttonDown} onClick={() => updateOrderClick(i, row.id, "Down")}>-</button>
-                </td>
-                const N = <td key="N">{i+1}</td>;
-                const label = <td key="label">{row.label}</td>
-
-                const ranksTds = priorities.map(p => {
-                    const rank = p.rowIds.findIndex(id => id === row.id);
-                    if (rank !== -1) return <td key={p.id}>{rank}</td>;
-                    else throw Error(`Cant find a rowId=${row.id} within priority.rowIds priorityId=${p.id} `)
-                })
-                return <tr key={row.id}>
-                    {X}
-                    {N}
-                    {label}
-                    {ranksTds}
-                </tr>
-            })}
-                    </SortableContext>
+                {sortedRows.map((row, i) => {
+                   const ranks = getRanks(row.id, priorities);
+                   return <RowView index={i} key={row.id} row={row} ranks={ranks} onUpdateOrderClick={delta => updateOrderClick(i, row.id, delta)} />
+                })}
+            
+                </SortableContext>
             </DndContext>
-        <tr key="input-tr">
-            <td colSpan={3}>
-            <input type="text" placeholder="New row" ref={newRowInputRef} onPaste={e => newRowPaste(e)}/>
-            <button type="button" onClick={e => addRowClick(e)}>+</button>
-            </td>
-        </tr>
+            <tr key="input-tr">
+                <td colSpan={3}>
+                <input type="text" placeholder="New row" ref={newRowInputRef} onPaste={e => newRowPaste(e)}/>
+                <button type="button" onClick={e => addRowClick(e)}>+</button>
+                </td>
+            </tr>
         </tbody>
 
     </table>
 
+}
+
+interface RowViewProps {
+    row: Row,
+    index: number,
+    ranks: {priorityId: PriorityId, rank: number}[],
+    onUpdateOrderClick: (delta: "Up"|"Down") => void
+}
+function RowView({row, index, ranks, onUpdateOrderClick}: RowViewProps): JSX.Element {
+    const X = <td key="draghandle" className={s.dragHandle}>
+            <button type="button" className={s.buttonUp} onClick={() => onUpdateOrderClick("Up")}>+</button>
+            <button type="button" className={s.buttonDown} onClick={() => onUpdateOrderClick("Down")}>-</button>
+        </td>
+    const N = <td key="N">{index+1}</td>;
+    const label = <td key="label">{row.label}</td>
+
+    const ranksTds = ranks.map(r => <td key={r.priorityId}>{r.rank}</td>);
+
+    return <tr key={row.id}>
+        {X}
+        {N}
+        {label}
+        {ranksTds}
+    </tr>
 }
 
 export default PriorityTable;
