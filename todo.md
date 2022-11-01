@@ -14,6 +14,4 @@ Features left:
 Tech debt
     check performance on 100 of rows. If it is bad, switch to immutables and query
     e2e or unit tests
-    extract UI Row component, and table header component
-    move model out
 

@@ -78,11 +78,10 @@ function PriorityTable() {
             (e.target as HTMLInputElement).value = '';
         });
     }
+    
     const priorityThs = priorities.map(p => <th key={p.id} className={p.id === currentPriorityId ? s.currentPriorityTh : ''}>
         <button type="button" className={s.selectPriorityButton} onClick={() => setCurrentPriorityId(p.id)}>{p.name}</button>
     </th>);
-
-
 
     return <table className={s.table}>
         <thead>
