@@ -1,5 +1,6 @@
 import React, {useRef, useState} from 'react';
 import s from './priority-table.module.css';
+import {CSS} from '@dnd-kit/utilities';
 import {
     DndContext, 
     closestCenter,
@@ -34,7 +35,8 @@ function PriorityTable() {
         })
     );
 
-    const {rows, priorities, addPriority, addRow, updateOrder} = useTable();
+
+    const {rows, priorities, addPriority, addRow, updateOrder, switchRows} = useTable();
 
     const [currentPriorityId, setCurrentPriorityId] = useState<PriorityId>(priorities[0].id);
     const currentPriority = priorities.find(p => p.id === currentPriorityId);
@@ -51,6 +53,7 @@ function PriorityTable() {
     
 
     const updateOrderClick = function (index: number, rowId: RowId, delta: "Up" | "Down") {
+        console.log('udpateOrder')
         if (index === 0 && delta === "Up") {}
         else if (index === rows.length-1 && delta === "Down") {}
         else {
@@ -81,6 +84,7 @@ function PriorityTable() {
             (e.target as HTMLInputElement).value = '';
         });
     }
+
     
     const priorityThs = priorities.map(p => <th key={p.id} className={p.id === currentPriorityId ? s.currentPriorityTh : ''}>
         <button type="button" className={s.selectPriorityButton} onClick={() => setCurrentPriorityId(p.id)}>{p.name}</button>
@@ -100,7 +104,9 @@ function PriorityTable() {
             <DndContext 
                 sensors={sensors}
                 collisionDetection={closestCenter}
-                onDragEnd={(event) => console.log('onDragEnd', event)}
+                onDragEnd={(event) => {
+                    if (event.over) switchRows(currentPriorityId, event.active.id as string, event.over.id as string)
+                }}
                 >
                 <SortableContext 
                     items={sortedRows}
@@ -109,7 +115,8 @@ function PriorityTable() {
                 {sortedRows.map((row, i) => {
                    const ranks = getRanks(row.id, priorities);
                    const isLastMoved = lastMoved === row.id;
-                   return <RowView index={i} key={row.id} isLastMoved={isLastMoved} row={row} ranks={ranks} onUpdateOrderClick={delta => updateOrderClick(i, row.id, delta)} />
+                   return <RowView index={i} key={row.id} isLastMoved={isLastMoved} row={row} ranks={ranks}
+                    onUpdateOrderClick={delta => updateOrderClick(i, row.id, delta)} />
                 })}
             
                 </SortableContext>
@@ -134,16 +141,30 @@ interface RowViewProps {
     isLastMoved: boolean;
 }
 function RowView({row, index, ranks, isLastMoved, onUpdateOrderClick}: RowViewProps): JSX.Element {
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        transform,
+        transition,
+      } = useSortable({id: row.id});
+      
+      const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+      };
+
     const X = <td key="draghandle" className={s.dragHandle}>
-            <button type="button" className={s.buttonUp} onClick={() => onUpdateOrderClick("Up")}>+</button>
+            <button type="button" className={s.buttonUp} onClick={() => {console.log('button click up'); onUpdateOrderClick("Up")}}>+</button>
             <button type="button" className={s.buttonDown} onClick={() => onUpdateOrderClick("Down")}>-</button>
+            <button type="button"  {...listeners}>#</button>
         </td>
     const N = <td key="N">{index+1}</td>;
     const label = <td key="label">{row.label}</td>
 
     const ranksTds = ranks.map(r => <td key={r.priorityId}>{r.rank}</td>);
     const trClass = isLastMoved ? s.lastMovedTr  : '';
-    return <tr key={row.id} className={trClass}>
+    return <tr key={row.id} className={trClass}  ref={setNodeRef} style={style} {...attributes}>
         {X}
         {N}
         {label}

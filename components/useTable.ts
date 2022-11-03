@@ -33,18 +33,25 @@ export interface UseTableHook {
     updateOrder: (rowId: RowId, priorityId: PriorityId, delta: "Up" | "Down") => void;
     rows: Row[],
     priorities: Priority[];
+    switchRows: (priorityId: PriorityId, activeRowId: RowId, overRowId: RowId) => void;
 }
 export function useTable(): UseTableHook {
     const [priorities, setPriorities] = useState<Priority[]>(initialPriorities);
     const [rows, setRows] = useState<Row[]>(initialRows);
     
-    const updateOrder = function(rowId: RowId, priorityId: PriorityId, delta: "Up" | "Down") {
-        const priority = priorities.find(p => p.id === priorityId);
-        if (!priority) throw new Error(`Can't find a priority with id=${priorityId}`);
-
+    const findPriority = (id: PriorityId): Priority => {
+        const priority = priorities.find(p => p.id === id);
+        if (!priority) throw new Error(`Can't find a priority with id=${id}`);
+        return priority;
+    }
+    const findRowIndex = (priority: Priority, rowId: RowId): number => {
         const rowIndex = priority.rowIds.findIndex(id => id === rowId);
-        if (rowIndex === -1) throw Error(`Can't find a row rowId=${rowId}`)
-
+        if (rowIndex === -1) throw Error(`Can't find a row rowId=${rowId}`);
+        return rowIndex;
+    }
+    const updateOrder = function(rowId: RowId, priorityId: PriorityId, delta: "Up" | "Down") {
+        const priority = findPriority(priorityId);
+        const rowIndex = findRowIndex(priority, rowId);
         const newIndex = delta === 'Up' ? rowIndex - 1 : rowIndex + 1;
         
         priority.rowIds.splice(rowIndex, 1);
@@ -72,6 +79,18 @@ export function useTable(): UseTableHook {
         setPriorities(priorities => priorities.concat(newPriority));
     }
 
+    const switchRows = (priorityId: PriorityId, activeRowId: RowId, overRowId: RowId) => {
+        if (activeRowId === overRowId) return;
+        const priority = findPriority(priorityId);
+        const row1Index = findRowIndex(priority, activeRowId);
+        const row2Index = findRowIndex(priority, overRowId);
+        
+        const [activeRow] = priority.rowIds.splice(row1Index, 1);
+        priority.rowIds.splice(row2Index, 0, activeRow);
 
-    return {rows, priorities, addPriority, addRow, updateOrder};
+        setPriorities(p => [...p]) // mutation
+
+    }
+
+    return {rows, priorities, addPriority, addRow, updateOrder, switchRows};
 }
