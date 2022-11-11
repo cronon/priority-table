@@ -16,11 +16,11 @@
     cursor: default;
 }
 .table tbody tr:hover {
-    outline: 1px dashed black;
-    outline-color: darksalmon;
+    outline: 1px dotted rgb(230, 92, 47);
+    /* background-color: rgb(255, 249, 240); */
 }
 
-.lastMovedTr {
+.highlightedTr {
     background-color: rgb(255, 229, 220);
 }
 

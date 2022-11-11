@@ -47,7 +47,7 @@ function PriorityTable() {
     const currentPriority = priorities.find(p => p.id === currentPriorityId);
     if (!currentPriority) throw new Error(`Cant find current priority id=${currentPriorityId}`);
 
-    const [lastMoved, setLastMoved] = useState<RowId>(rows[0].id);
+    const [highlightedRowId, setHighlightedRowId] = useState<RowId>(rows[0].id);
 
     const sortedRows =  currentPriority.rowIds
         .map(rowId => {
@@ -58,12 +58,11 @@ function PriorityTable() {
     
 
     const updateOrderClick = function (index: number, rowId: RowId, delta: "Up" | "Down") {
-        console.log('udpateOrder')
         if (index === 0 && delta === "Up") {}
         else if (index === rows.length-1 && delta === "Down") {}
         else {
             updateOrder(rowId, currentPriorityId, delta);
-            setLastMoved(rowId);
+            setHighlightedRowId(rowId);
         }
     }
 
@@ -111,6 +110,11 @@ function PriorityTable() {
                 // https://github.com/clauderic/dnd-kit/issues/285
                 id={dndContextId}
                 collisionDetection={closestCenter}
+                onDragStart={event => {
+                    if (event.active) {
+                        setHighlightedRowId(event.active.id as string);
+                    }
+                }}
                 onDragEnd={(event) => {
                     if (event.over) switchRows(currentPriorityId, event.active.id as string, event.over.id as string)
                 }}
@@ -121,7 +125,7 @@ function PriorityTable() {
                 >
                 {sortedRows.map((row, i) => {
                    const ranks = getRanks(row.id, priorities);
-                   const isLastMoved = lastMoved === row.id;
+                   const isLastMoved = highlightedRowId === row.id;
                    return <RowView index={i} key={row.id} isLastMoved={isLastMoved} row={row} ranks={ranks}
                     onUpdateOrderClick={delta => updateOrderClick(i, row.id, delta)} />
                 })}
@@ -170,12 +174,13 @@ function RowView({row, index, ranks, isLastMoved, onUpdateOrderClick}: RowViewPr
     const label = <td key="label">{row.label}</td>
 
     const ranksTds = ranks.map(r => <td key={r.priorityId}>{r.rank}</td>);
-    const trClass = isLastMoved ? s.lastMovedTr  : '';
+    const trClass = isLastMoved ? s.highlightedTr  : '';
     return <tr key={row.id} className={trClass}  ref={setNodeRef} style={style} {...attributes}>
         {X}
         {N}
         {label}
         {ranksTds}
+        <td key="input-column" />
     </tr>
 }
 

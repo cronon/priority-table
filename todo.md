@@ -8,7 +8,6 @@ So, I'll sort them out according to the difficulty, and then I select another co
 Then I'll copy that to Excel, and add some absolute weight to those numbers, i.e. instead of two bugs with Difficulty {1, 2} it'll be {1, 100} if the second one is significantly more difficult. Then again in excel I may use a formula to calculate the final priority.
 
 bug
-    when drag a row, it doesn't become highlighted
 
 Features left:
     deploy on github
@@ -20,6 +19,7 @@ Tech debt
 
 
 features done:
+    highlight dragging row
     add new row button click
     add new column by Enter or by button click
     easy to copy and paste to excel
