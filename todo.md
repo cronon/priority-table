@@ -9,9 +9,9 @@ Then I'll copy that to Excel, and add some absolute weight to those numbers, i.e
 
 bug
     when drag a row, it doesn't become highlighted
+    fix on blur adding a new column
 
 Features left:
-    check how to paste it to excel
     deploy on github
     move handle to the right column or move +/- buttons to the right
 
@@ -20,6 +20,7 @@ Tech debt
 
 
 features done:
+    easy to copy and paste to excel
     reverse asc-desc
     highlight recently moved row
     drag-n-drop

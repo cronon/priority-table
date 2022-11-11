@@ -1,6 +1,6 @@
 .dragHandle {
     font-weight: bold;
-    cursor: default;
+    user-select: none;
 }
 
 .currentPriorityTh {
@@ -22,4 +22,11 @@
 
 .lastMovedTr {
     background-color: rgb(255, 229, 220);
+}
+
+.zhColumn {
+    user-select: none;
+}
+.newColumnInput {
+    user-select: none;
 }

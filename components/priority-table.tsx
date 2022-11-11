@@ -98,11 +98,11 @@ function PriorityTable() {
     return <table className={s.table}>
         <thead>
             <tr>
-                <th key="draghandle">Ж</th>
+                <th key="draghandle" className={s.zhColumn}>Ж</th>
                 <th key="N">№</th>
                 <th key="label">Label</th>
                 {priorityThs}
-                <th><input type="text" onBlur={newColumnInputChange} placeholder="New column"/></th>
+                <th><input className={s.newColumnInput} type="text" onBlur={newColumnInputChange} placeholder="New column"/></th>
             </tr>
         </thead>
         <tbody>
