@@ -11,6 +11,7 @@ bug
 
 Features left:
     deploy on github
+    chagne favicon
     add new row by Enter 
     move handle to the right column or move +/- buttons to the right
 
