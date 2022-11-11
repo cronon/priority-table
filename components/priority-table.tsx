@@ -1,4 +1,4 @@
-import React, {useRef, useState} from 'react';
+import React, {useId, useRef, useState} from 'react';
 import s from './priority-table.module.css';
 import {CSS} from '@dnd-kit/utilities';
 import {
@@ -18,6 +18,7 @@ import {
   import {useSortable} from '@dnd-kit/sortable';
 
 import {useTable, PriorityId, RowId, Row, Priority} from './useTable';
+import { isSsr } from './isSsr';
 
 function getRanks(rowId: RowId, priorities: Priority[]): {priorityId: PriorityId, rank: number}[] {
     return priorities.map(p => {
@@ -34,7 +35,7 @@ function PriorityTable() {
           coordinateGetter: sortableKeyboardCoordinates,
         })
     );
-
+    const dndContextId = useId();
 
     const {rows, priorities, addPriority, addRow, updateOrder, switchRows} = useTable();
 
@@ -103,6 +104,10 @@ function PriorityTable() {
         <tbody>
             <DndContext 
                 sensors={sensors}
+                // https://github.com/clauderic/dnd-kit/issues/899
+                accessibility={{ container: isSsr ? undefined : document.body }}
+                // https://github.com/clauderic/dnd-kit/issues/285
+                id={dndContextId}
                 collisionDetection={closestCenter}
                 onDragEnd={(event) => {
                     if (event.over) switchRows(currentPriorityId, event.active.id as string, event.over.id as string)
