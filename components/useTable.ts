@@ -38,7 +38,6 @@ export interface UseTableHook {
 export function useTable(): UseTableHook {
     const [priorities, setPriorities] = useState<Priority[]>(initialPriorities);
     const [rows, setRows] = useState<Row[]>(initialRows);
-    
     const findPriority = (id: PriorityId): Priority => {
         const priority = priorities.find(p => p.id === id);
         if (!priority) throw new Error(`Can't find a priority with id=${id}`);

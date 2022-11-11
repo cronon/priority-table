@@ -22,9 +22,13 @@ import { isSsr } from './isSsr';
 
 function getRanks(rowId: RowId, priorities: Priority[]): {priorityId: PriorityId, rank: number}[] {
     return priorities.map(p => {
-        const rank = p.rowIds.findIndex(id => id === rowId);
-        if (rank !== -1) return {priorityId: p.id, rank};
-        else throw Error(`Cant find a rowId=${rowId} within priority.rowIds priorityId=${p.id} `)
+        const index = p.rowIds.findIndex(id => id === rowId);
+        if (index !== -1) {
+            const rank = p.rowIds.length - index;
+            return {priorityId: p.id, rank};
+        } else {
+            throw Error(`Cant find a rowId=${rowId} within priority.rowIds priorityId=${p.id} `)
+        }
     });
 }
 

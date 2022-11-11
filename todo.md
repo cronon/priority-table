@@ -12,16 +12,18 @@ bug
 
 Features left:
     check how to paste it to excel
-    reverse asc-desc
     deploy on github
     move handle to the right column or move +/- buttons to the right
 
 Tech debt
-    remove warnings
     e2e or unit tests
 
 
 features done:
+    reverse asc-desc
     highlight recently moved row
     drag-n-drop
     check performance on 100 of rows. If it is bad, switch to immutables and query - all is fine
+
+tech debt done:
+    remove warnings
