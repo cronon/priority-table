@@ -76,11 +76,7 @@ function PriorityTable() {
             addRow(newRowLabel);
         }
     }
-    const newColumnInputChange = (e: React.FocusEvent<HTMLInputElement, Element>) => {
-        const newColumn = e.target.value;
-        e.target.value = '';
-        addPriority(newColumn);
-    }
+
     const newRowPaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
         e.clipboardData.items[0].getAsString(paste => {
             paste.split('\n').forEach(line => {
@@ -102,7 +98,9 @@ function PriorityTable() {
                 <th key="N">№</th>
                 <th key="label">Label</th>
                 {priorityThs}
-                <th><input className={s.newColumnInput} type="text" onBlur={newColumnInputChange} placeholder="New column"/></th>
+                <th>
+                    <NewColumnInput onAddNewColumn={newColumn => addPriority(newColumn)} />
+                </th>
             </tr>
         </thead>
         <tbody>
@@ -181,4 +179,26 @@ function RowView({row, index, ranks, isLastMoved, onUpdateOrderClick}: RowViewPr
     </tr>
 }
 
+function NewColumnInput({onAddNewColumn}: {onAddNewColumn: (newColumn: string) => void}): JSX.Element {
+    const inputRef = useRef<HTMLInputElement>(null);
+
+    const addColumn = () => {
+        if (inputRef?.current) {
+            const value = inputRef.current.value;
+            inputRef.current.value = '';
+            onAddNewColumn(value);
+        }
+
+    }
+    const onKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') {
+            addColumn()
+        }
+    }
+
+    return <>
+        <input className={s.newColumnInput} ref={inputRef} onKeyPress={onKeyPress} type="text" placeholder="New column"/>
+        <button type="button" onClick={addColumn}>+</button>
+    </>
+}
 export default PriorityTable;

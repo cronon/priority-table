@@ -9,10 +9,10 @@ Then I'll copy that to Excel, and add some absolute weight to those numbers, i.e
 
 bug
     when drag a row, it doesn't become highlighted
-    fix on blur adding a new column
 
 Features left:
     deploy on github
+    add new row by Enter 
     move handle to the right column or move +/- buttons to the right
 
 Tech debt
@@ -20,6 +20,8 @@ Tech debt
 
 
 features done:
+    add new row button click
+    add new column by Enter or by button click
     easy to copy and paste to excel
     reverse asc-desc
     highlight recently moved row
