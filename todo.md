@@ -10,16 +10,18 @@ Then I'll copy that to Excel, and add some absolute weight to those numbers, i.e
 bug
 
 Features left:
-    deploy on github
     chagne favicon
     add new row by Enter 
     move handle to the right column or move +/- buttons to the right
 
 Tech debt
+    make deploy with one commend, with no need to add nojekyll manually
     e2e or unit tests
 
 
+
 features done:
+    deploy on github
     highlight dragging row
     add new row button click
     add new column by Enter or by button click
